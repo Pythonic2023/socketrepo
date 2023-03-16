@@ -17,21 +17,21 @@
 #include	<sys/wait.h>
 #include	<sys/un.h>		/* for Unix domain sockets */
 
-// DEFINES
-#define SA struct addrinfo 
+// DEFINES 
+#define SA struct sockaddr
 #define MAXLINE 4096
 
-int main(int argc, char argv[]){
+int main(int argc, char *argv[]){
     int sockfd, n;
     char recvline[MAXLINE+1];
     struct sockaddr_in servaddr;
 
     if(argc != 2){
-        fprintf(stderr, "Usage: PROGRAM ARGUMENT");
+        fprintf(stderr, "Usage: PROGRAM ARGUMENT\n");
     }
 
     if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-        fprintf(stderr, "socket error");
+        fprintf(stderr, "socket error\n");
     }
 
     memset(&servaddr, 0, sizeof(servaddr));
@@ -39,19 +39,19 @@ int main(int argc, char argv[]){
     servaddr.sin_port = htons(13); // daytime server
     
     if(inet_pton(AF_INET, argv[1], &servaddr.sin_addr) <= 0){
-        fprintf(stderr, "inet_pton error for %s", argv[1]);
+        fprintf(stderr, "inet_pton error for %s\n", argv[1]);
     }
 
     if(connect(sockfd, (SA *) &servaddr, sizeof(servaddr)) < 0){
-        fprintf(stderr, "connect error");
+        fprintf(stderr, "connect error\n");
 
         while((n = read(sockfd, recvline, MAXLINE)) > 0){
             recvline[n] = 0; // null terminate
             if(fputs(recvline, stdout) == EOF)
-            fprintf(stderr, "fputs error");
+            fprintf(stderr, "fputs error\n");
         }
         if(n < 0){
-            fprintf(stderr, "read error");
+            fprintf(stderr, "read error\n");
         }
         return 0;
     }
