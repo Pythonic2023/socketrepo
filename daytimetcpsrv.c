@@ -20,31 +20,42 @@
 
 // Defines
 #define MAXLINE 4096
+#define SA struct sockaddr
+#define BACKLOG 5
 
 
 int main(int argc, char *argv[]){
     int listenfd, connfd;
-    struct sockaddr_in servaddr;
+    struct sockaddr_in servaddr, peeraddr;
+    socklen_t addr_size;
     char buff[MAXLINE];
     time_t ticks;
 
-    // Error check socket
+    if((listenfd = socket(AF_INET, SOCK_STREAM, 0)) == -1){
+        fprintf(stderr, "Socket error\n");
+    }
 
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port = htons(13); // Daytime server
 
-    //Error check bind
-    // Error check listen
+    if(bind(listenfd, (SA *) &servaddr, sizeof(servaddr)) == -1){
+        printf("Bind error: %s\n", strerror(errno));
+    }
+
+    if(listen(listenfd, BACKLOG) == -1){
+        fprintf(stderr, "Listen error\n");
+    }  
 
     for( ; ; ){
-        connfd = Accept(listenfd, (SA *) NULL, NULL);
-
+        addr_size = sizeof(peeraddr);
+        connfd = accept(listenfd, (SA *) &peeraddr, &addr_size);
         ticks = time(NULL);
         snprintf(buff, sizeof(buff), "%.24s\r\n", ctime(&ticks));
-        Write(connfd, buff, strlen(buff));
+        write(connfd, buff, strlen(buff));
 
-        Close(connfd);
+        close(connfd);
     }
+
 }

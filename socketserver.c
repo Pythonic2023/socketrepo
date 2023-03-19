@@ -34,7 +34,7 @@ void *get_in_addr(struct sockaddr *sa){
 
 int main(void){
     int sockfd, new_fd; // list on sockfd, new connection on new_fd
-    struct addrinfo hints, *serveinfo, *p;
+    struct addrinfo *hints, *serveinfo, *p;
     struct sockaddr_storage their_addr; // connectors address information
     socklen_t sin_size;
     struct sigaction sa;
